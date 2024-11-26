@@ -15,7 +15,18 @@
 </head>
 <body>
     <main class="h-100 mh-100 d-flex flex-column overflow-hidden justify-content-start">
-
+        <section class="px-4 py-2">
+            <p>Welcome to your campaign assistant</p>
+            <div class="mb-3">
+                <label for="dropdown" class="form-label">Choose a persona:</label>
+                <select class="form-select" id="persona-dropdown">
+                    <option selected>Select an option</option>
+                    <option value="1">Tech Enthusiast": "You are a 30-year-old tech enthusiast who loves the latest gadgets and technology.</option>
+                    <option value="2">Eco-Friendly Consumer": "You are a 25-year-old who is passionate about sustainability and eco-friendly products.</option>
+                    <option value="3">Fitness Buff": "You are a 40-year-old fitness enthusiast who is always looking for the best workout gear and supplements.</option>
+                </select>
+            </div>
+        </section>
         <div id="messages" class="px-4 pb-4 pt-2 flex-grow-1 overflow-y-auto overflow-x-hidden align-items-stretch">
 
             <template id="message-template-user">
@@ -81,6 +92,14 @@
         form.addEventListener("submit", async function(e) {
             e.preventDefault();
             const message = messageInput.value;
+            // Get the selected value from the dropdown
+            const personaDropdown = document.getElementById("persona-dropdown");
+            const selectedOption = personaDropdown.selectedOptions[0];
+            const selectedPersona = selectedOption.text;
+            if (selectedPersona === "Select an option") {
+                alert("Please select a persona from the dropdown");
+                return;
+            }
 
             const userTemplateClone = userTemplate.content.cloneNode(true);
             userTemplateClone.querySelector(".message-content").innerText = message;
@@ -92,7 +111,8 @@
 
             messages.push({
                 "role": "user",
-                "content": message
+                "content": message,
+                "persona": selectedPersona 
             });
 
             try {

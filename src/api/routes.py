@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from .shared import globals
+from typing import  Optional
 
 router = fastapi.APIRouter()
 templates = Jinja2Templates(directory="api/templates")
@@ -15,7 +16,7 @@ templates = Jinja2Templates(directory="api/templates")
 class Message(pydantic.BaseModel):
     content: str
     role: str = "user"
-
+    persona: Optional[str] = None
 
 class ChatRequest(pydantic.BaseModel):
     messages: list[Message]
@@ -37,7 +38,17 @@ async def chat_stream_handler(
     async def response_stream():
         messages = [{"role": message.role, "content": message.content} for message in chat_request.messages]
         model_deployment_name = globals["chat_model"]
-        prompt_messages = globals["prompt"].create_messages()
+         # Render the template with the parameters by calling the prompt directly
+
+
+        # Update the global persona if a new one is provided and different from the current one
+        if chat_request.messages and chat_request.messages[0].persona and chat_request.messages[0].persona != globals.get("current_persona"):
+            globals["current_persona"] = chat_request.messages[0].persona
+            print(f"Updated persona: {globals['current_persona']}")
+
+        prompt_messages = globals["prompt"].create_messages(persona=globals["current_persona"])
+        print(prompt_messages)
+
         chat_coroutine = await chat_client.complete(
             model=model_deployment_name, messages=prompt_messages + messages, stream=True
         )

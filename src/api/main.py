@@ -40,11 +40,13 @@ async def lifespan(app: fastapi.FastAPI):
 
     chat = await project.inference.get_chat_completions_client()
     prompt = PromptTemplate.from_prompty(pathlib.Path(__file__).parent.resolve() / "prompt.prompty")
+   
 
     globals["project"] = project
     globals["chat"] = chat
     globals["prompt"] = prompt
     globals["chat_model"] = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
+    globals["current_persona"] = None
     yield
 
     await project.close()
